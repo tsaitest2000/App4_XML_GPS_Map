@@ -33,6 +33,7 @@ import com.squareup.okhttp.Response;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       mContext = this;
    }
 
-   @Override
+   @Override // 當GoogleMap載入完成所要執行的工作 ====================================================
    public void onMapReady(GoogleMap googleMap) {
       mGoogleMap = googleMap;
       mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
@@ -76,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       mGoogleMap.setOnInfoWindowClickListener(new MyInfoWindowClickLnr());
    }
 
-   @Override
+   @Override // 創建OptionsMenu ====================================================================
    public boolean onCreateOptionsMenu(Menu menu) {
       menu.add(0, 0, 0, "台南車站");
       menu.add(0, 1, 0, "日月潭");
@@ -86,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       return super.onCreateOptionsMenu(menu);
    }
 
-   @Override
+   @Override // 當OptionsMenu的item被按下時所要執行的工作 ============================================
    public boolean onOptionsItemSelected(MenuItem item) {
       switch (item.getItemId()) {
          case 0:
@@ -94,22 +95,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String address = item.getTitle().toString();
             double[] p = GeoUtil.getLatLng(address);
             LatLng latLng = new LatLng(p[0], p[1]);
-            // 傳統的作法：移往OptionsItem文字所代表的地點 1.在該地點加上Marker物件 2.相機鏡頭移往該處
+
+            // 傳統作法：移往OptionsItem文字所代表的地點 1.在該地點加上Marker物件 2.相機鏡頭移往該處
             mGoogleMap.addMarker(new MarkerOptions().position(latLng).title(address));
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-            // ★★ 移往該地點時 會產生動畫移動的效果 ==========
+            // 動畫做法：移往該地點時顯示動畫效果
             /*
             CameraPosition cp = new CameraPosition.Builder().target(latLng).tilt(67).bearing(300).zoom(17).build();
             CameraUpdate cu = CameraUpdateFactory.newCameraPosition(cp);
             mGoogleMap.animateCamera(cu, 1000, null);
             */
             break;
-         case 2: // 進行語音地點查詢
+         case 2: // 語音地點查詢
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
             startActivityForResult(intent, 101);
             break;
-         case 3: // YouBike地點顯示
+         case 3: // 顯示雙北市的YouBike地點
             new RunWork_YouBike().start();
             break;
          case 4: // ★★ 商業邏輯A01：一次性刪除所有產生的縮略圖 ★★
@@ -121,7 +123,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       return super.onOptionsItemSelected(item);
    }
 
-   @Override
+
+   @Override // 語音查詢完成時，所要執行的工作 ========================================================
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
          // ★★ 容易忘記的程式語法 ★★
@@ -134,48 +137,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       }
    }
 
+   // YouBike專用的執行緒 ===========================================================================
    class RunWork_YouBike extends Thread {
 
       String json;
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-
-            mGoogleMap.clear();
-            for (int i = 1; i <= 261; i++) { // http://data.taipei/youbike中顯示有261筆資料
-               String index = String.format("%04d", i); // ★★★ 格式寫法。結果如：0001
-               try {
-                  JSONObject jo = new JSONObject(json).getJSONObject("retVal").getJSONObject(index);
-                  double tot = Double.parseDouble(jo.getString("tot")); // 總計車位數
-                  double sbi = Double.parseDouble(jo.getString("sbi")); // 可用車位數
-                  double lat = Double.parseDouble(jo.getString("lat")); // 經度
-                  double lng = Double.parseDouble(jo.getString("lng")); // 緯度
-                  String ar = jo.getString("ar"); // 地址
-                  double available = sbi / tot; // 腳踏車可使用的比率值 = 用可車位數 / 總計車位數
-
-                  LatLng latLng = new LatLng(lat, lng);
-                  // ★★ 設定預設的MarkerDescriptor的顏色為紅色
-                  BitmapDescriptor flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-
-                  if (available >= 0.75) {
-                     flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                  } else if (available >= 0.5) {
-                     flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
-                  } else if (available >= 0.25) {
-                     flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-                  }
-
-                  String message = String.format("%.1f", available * 100) + "%, " + sbi + "輛";
-                  mGoogleMap.addMarker(new MarkerOptions().icon(flag).position(latLng).title(message)); //★ icon語法
-                  // 總共261個腳踏車Marker物件 被點擊時InfoWindow就會出現 → 設定被點擊後要執行的操作
-                  // mGoogleMap.setOnInfoWindowClickListener(new MyInfoWindowClickLnr()); // 原本在這 我搬到onMapReady()
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
-            }
-         }
-      };
-
       OkHttpClient client = new OkHttpClient();
 
       String run(String url) throws IOException {
@@ -192,8 +157,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
          }
       }
+
+      Runnable runnable = new Runnable() {
+         @Override
+         public void run() {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.041708, 121.550422), 13));
+            mGoogleMap.clear();
+
+            try {
+               JSONObject jsonObject = new JSONObject(json).getJSONObject("retVal");
+               int jsonObjectLength = jsonObject.length();
+
+               for (int i = 1; i <= jsonObjectLength; i++) { // http://data.taipei/youbike的資料筆數
+                  String index = String.format("%04d", i); // ★★ 格式如：0001 0002 0003 ...
+
+                  JSONObject detailObject = jsonObject.getJSONObject(index);
+                  int tot=detailObject.getInt("tot"); // 場站總停車格
+                  int sbi = detailObject.getInt("sbi"); // 場站目前車輛數量
+                  double lat = detailObject.getDouble("lat"); // 經度
+                  double lng = detailObject.getDouble("lng"); // 緯度
+                  String ar = detailObject.getString("ar"); // 地址(中文)
+                  double available = (double) sbi / (double) tot; // 腳踏車可用比率值
+
+                  // ★★ 設定預設的MarkerDescriptor的顏色為紅色
+                  BitmapDescriptor flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+
+                  if (available >= 0.75) {
+                     flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                  } else if (available >= 0.5) {
+                     flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+                  } else if (available >= 0.25) {
+                     flag = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+                  }
+
+                  LatLng latLng = new LatLng(lat, lng);
+                  String message = String.format("%.1f", available * 100) + "%, " + sbi + "輛";
+                  mGoogleMap.addMarker(new MarkerOptions().icon(flag).position(latLng).title(message)); //★ icon語法
+                  // 所有腳踏車的Marker物件被點擊時會出現InfoWindow → 設定被點擊後要執行的操作
+                  // mGoogleMap.setOnInfoWindowClickListener(new MyInfoWindowClickLnr()); // 原本在這 我搬到onMapReady()
+               }
+            } catch (JSONException e) {
+               e.printStackTrace();
+            }
+         }
+      };
    }
 
+   // GoogleMap被按下時所要執行的工作 ================================================================
    private class MyMapOnClickLnr implements GoogleMap.OnMapClickListener {
       @Override
       public void onMapClick(LatLng latLng) {
@@ -205,11 +215,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          }
          Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(latLng).title("test"));
          mListMarker.add(marker);
-         drawLine(); // ★★ 議題：GoogleMap上兩點間畫線
-         navigate(); // ★★ 議題：GoogleMap上繪製導航線
+         if (mListMarker.size() == mCount) {
+            drawLine(); // ★★ 議題：GoogleMap上兩點間畫線
+            navigate(); // ★★ 議題：GoogleMap上繪製導航線
+         }
       }
    }
 
+   // 進階第05堂，議題：地圖上兩點間畫線 ==============================================================
+   private void drawLine() {
+      PolylineOptions options = new PolylineOptions();
+      for (int i = 0; i < mCount; i++) {
+         options.add(mListMarker.get(i).getPosition());
+      }
+      options.width(5);
+      options.color(Color.RED);
+      options.zIndex(1);
+      mGoogleMap.addPolyline(options);
+
+      float[] results = new float[1]; //計算兩點間距，講義3.3節，API通則為float[] → 結果可能不止一項
+      Location.distanceBetween(
+         mListMarker.get(0).getPosition().latitude,
+         mListMarker.get(0).getPosition().longitude,
+         mListMarker.get(1).getPosition().latitude,
+         mListMarker.get(1).getPosition().longitude,
+         results
+      );
+      MapsActivity.this.setTitle(String.valueOf((int) results[0]) + "公尺");
+   }
+
+   // 進階第05堂，議題：地圖上繪製導航線 ==============================================================
+   private void navigate() {
+      if (mListMarker.size() == mCount) {
+         // ★★★ GeoUtil.getPoints() "points"：URL請求範例網址中jsonString("points")：所有點的字串編碼
+         String points = GeoUtil.getPoints(mListMarker.get(0).getPosition(), mListMarker.get(1).getPosition());
+         List<LatLng> list = GeoUtil.decodePoly(points);
+         setTitle(list.size() + ", " + points);
+         PolylineOptions options = new PolylineOptions();
+         for (LatLng latLng : list) {
+            options.add(latLng);
+         }
+         options.width(5);
+         options.color(Color.MAGENTA);
+         options.zIndex(1);
+         mGoogleMap.addPolyline(options);
+      }
+   }
+
+   // GoogleMap中InfoWindow被按下時所要執行的工作 ====================================================
    private class MyInfoWindowClickLnr implements GoogleMap.OnInfoWindowClickListener {
       @Override
       public void onInfoWindowClick(Marker marker) {
@@ -219,14 +272,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          MapsActivity.this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(path1)));
 
          // ★ 方案二：在原Activity中顯示小縮略圖 ★
-         final LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
          String data2 = "http://maps.googleapis.com/maps/api/streetview?size=640x480&location=%f,%f"; // ★★
-         String path2 = String.format(data2, latLng.latitude, latLng.longitude);
+         String path2 = String.format(data2, marker.getPosition().latitude, marker.getPosition().longitude);
          Picasso.with(mContext).load(path2).into(new MyTarget(marker.getPosition())); // ★★★
       }
    }
 
-   // ★Picasso的into方法的參數★
+   // ★Picasso的into方法的參數★ ===================================================================
    private class MyTarget implements Target {
 
       private LatLng mLatLng;
@@ -238,10 +290,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       @Override
       public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
          // 縮略圖參數
-         GroundOverlayOptions options = new GroundOverlayOptions()
-            .image(BitmapDescriptorFactory.fromBitmap(bitmap))
-            .anchor(0, 1)
-            .position(mLatLng, 400f, 200f);
+         GroundOverlayOptions options = new GroundOverlayOptions();
+         options.image(BitmapDescriptorFactory.fromBitmap(bitmap));
+         options.anchor(0, 1);
+         options.position(mLatLng, 400f, 200f);
+
          // 縮略圖
          GroundOverlay overlay = mGoogleMap.addGroundOverlay(options);
          // 縮略圖透明度
@@ -258,48 +311,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
       @Override
       public void onPrepareLoad(Drawable placeHolderDrawable) {
 
-      }
-   }
-
-   // 進階第05堂，議題：地圖上兩點間畫線
-   private void drawLine() {
-      if (mListMarker.size() == mCount) { //★ mListMarker內裝Marker → mListMarker.size()=2 → 劃直線段
-         PolylineOptions options = new PolylineOptions();
-         for (int i = 0; i < mCount; i++) {
-            options.add(mListMarker.get(i).getPosition());
-         }
-         options.width(5);
-         options.color(Color.RED);
-         options.zIndex(1);
-         mGoogleMap.addPolyline(options);
-
-         float[] results = new float[1]; //計算兩點間距，講義3.3節，API通則為float[] → 結果可能不止一項
-         Location.distanceBetween(
-            mListMarker.get(0).getPosition().latitude,
-            mListMarker.get(0).getPosition().longitude,
-            mListMarker.get(1).getPosition().latitude,
-            mListMarker.get(1).getPosition().longitude,
-            results
-         );
-         MapsActivity.this.setTitle(String.valueOf((int) results[0]) + "公尺");
-      }
-   }
-
-   // 進階第05堂，議題：地圖上繪製導航線
-   private void navigate() {
-      if (mListMarker.size() == mCount) {
-         // ★★★ GeoUtil.getPoints()。"points"：URL請求範例網址中的jsonString("points") → 所有點的字串編碼
-         String points = GeoUtil.getPoints(mListMarker.get(0).getPosition(), mListMarker.get(1).getPosition());
-         List<LatLng> list = GeoUtil.decodePoly(points);
-         setTitle(list.size() + ", " + points);
-         PolylineOptions options = new PolylineOptions();
-         for (LatLng latLng : list) {
-            options.add(latLng);
-         }
-         options.width(5);
-         options.color(Color.MAGENTA);
-         options.zIndex(1);
-         mGoogleMap.addPolyline(options);
       }
    }
 

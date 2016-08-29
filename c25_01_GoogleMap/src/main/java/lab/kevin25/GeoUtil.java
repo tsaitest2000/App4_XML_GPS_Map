@@ -41,9 +41,7 @@ public class GeoUtil {
             try {
                String json = run(path);
                address = new JSONObject(json).getJSONArray("results").getJSONObject(0).getString("formatted_address");
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
             return address;
          }
       }
@@ -72,13 +70,8 @@ public class GeoUtil {
          }
 
          OkHttpClient client = new OkHttpClient();
-
-
          String run(String url) throws IOException {
-            Request request = new Request.Builder()
-               .url(url)
-               .build();
-
+            Request request = new Request.Builder().url(url).build();
             Response response = client.newCall(request).execute();
             return response.body().string();
          }
@@ -88,16 +81,14 @@ public class GeoUtil {
             try {
                String json = run(path);
                try {
-                  String lat = new JSONObject(json).getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lat");
-                  String lng = new JSONObject(json).getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lng");
+                  String lat = new JSONObject(json).getJSONArray("results").getJSONObject(0)
+                     .getJSONObject("geometry").getJSONObject("location").getString("lat");
+                  String lng = new JSONObject(json).getJSONArray("results").getJSONObject(0)
+                     .getJSONObject("geometry").getJSONObject("location").getString("lng");
                   pos[0] = Double.parseDouble(lat);
                   pos[1] = Double.parseDouble(lng);
-               } catch (JSONException e) {
-                  e.printStackTrace();
-               }
-            } catch (IOException e) {
-               e.printStackTrace();
-            }
+               } catch (JSONException e) { e.printStackTrace(); }
+            } catch (IOException e) { e.printStackTrace(); }
             return pos;
          }
       }
