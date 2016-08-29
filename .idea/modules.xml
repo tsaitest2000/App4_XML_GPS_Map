@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/App4_XML_GPS_Map.iml" filepath="$PROJECT_DIR$/App4_XML_GPS_Map.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c21_01_XML/c21_01_XML.iml" filepath="$PROJECT_DIR$/c21_01_XML/c21_01_XML.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c22_01_GPS/c22_01_GPS.iml" filepath="$PROJECT_DIR$/c22_01_GPS/c22_01_GPS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c22_H_GPS_Service★/c22_H_GPS_Service★.iml" filepath="$PROJECT_DIR$/c22_H_GPS_Service★/c22_H_GPS_Service★.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c23_01_GPS_Lib★★★/c23_01_GPS_Lib★★★.iml" filepath="$PROJECT_DIR$/c23_01_GPS_Lib★★★/c23_01_GPS_Lib★★★.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c23_02_GoogleMap/c23_02_GoogleMap.iml" filepath="$PROJECT_DIR$/c23_02_GoogleMap/c23_02_GoogleMap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c24_01_GoogleMap/c24_01_GoogleMap.iml" filepath="$PROJECT_DIR$/c24_01_GoogleMap/c24_01_GoogleMap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c24_02_Reflection/c24_02_Reflection.iml" filepath="$PROJECT_DIR$/c24_02_Reflection/c24_02_Reflection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c25_01_GoogleMap/c25_01_GoogleMap.iml" filepath="$PROJECT_DIR$/c25_01_GoogleMap/c25_01_GoogleMap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/c26_01_Map_Pikachu/c26_01_Pikachu.iml" filepath="$PROJECT_DIR$/c26_01_Map_Pikachu/c26_01_Pikachu.iml" />
+    </modules>
+  </component>
+</project>

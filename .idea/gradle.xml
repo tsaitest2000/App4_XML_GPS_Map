@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="LOCAL" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="C:\Program Files\Android\Android Studio\gradle\gradle-2.14.1" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/c21_01_XML" />
+            <option value="$PROJECT_DIR$/c22_01_GPS" />
+            <option value="$PROJECT_DIR$/c22_H_GPS_Service★" />
+            <option value="$PROJECT_DIR$/c23_01_GPS_Lib★★★" />
+            <option value="$PROJECT_DIR$/c23_02_GoogleMap" />
+            <option value="$PROJECT_DIR$/c24_01_GoogleMap" />
+            <option value="$PROJECT_DIR$/c24_02_Reflection" />
+            <option value="$PROJECT_DIR$/c25_01_GoogleMap" />
+            <option value="$PROJECT_DIR$/c26_01_Map_Pikachu" />
+          </set>
+        </option>
+        <option name="myModules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/c21_01_XML" />
+            <option value="$PROJECT_DIR$/c22_01_GPS" />
+            <option value="$PROJECT_DIR$/c22_H_GPS_Service★" />
+            <option value="$PROJECT_DIR$/c23_01_GPS_Lib★★★" />
+            <option value="$PROJECT_DIR$/c23_02_GoogleMap" />
+            <option value="$PROJECT_DIR$/c24_01_GoogleMap" />
+            <option value="$PROJECT_DIR$/c24_02_Reflection" />
+            <option value="$PROJECT_DIR$/c25_01_GoogleMap" />
+            <option value="$PROJECT_DIR$/c26_01_Map_Pikachu" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

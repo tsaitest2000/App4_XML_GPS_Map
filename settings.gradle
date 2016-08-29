@@ -1,0 +1,11 @@
+include ':c21_01_XML'
+
+include ':c22_01_GPS', ':c22_H_GPS_Service★'
+
+include ':c23_01_GPS_Lib★★★', ':c23_02_GoogleMap'
+
+include ':c24_01_GoogleMap', ':c24_02_Reflection'
+
+include ':c25_01_GoogleMap'
+
+include ':c26_01_Map_Pikachu'
